@@ -18,6 +18,7 @@ These are *not* part of the API.
 """
 
 import base64
+import collections
 from hashlib import md5
 
 
@@ -98,7 +99,7 @@ class _PropertyMixin(object):
         client = self._require_client(client)
         # Pass only '?projection=noAcl' here because 'acl' and related
         # are handled via custom endpoints.
-        query_params = {'projection': 'noAcl'}
+        query_params = collections.OrderedDict(projection='noAcl')
         if self.user_project is not None:
             query_params['userProject'] = self.user_project
         api_response = client._connection.api_request(

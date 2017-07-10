@@ -113,6 +113,22 @@ class TestClient(unittest.TestCase):
         self.assertIsInstance(bucket, Bucket)
         self.assertIs(bucket.client, client)
         self.assertEqual(bucket.name, BUCKET_NAME)
+        self.assertIsNone(bucket.user_project)
+
+    def test_bucket_w_user_project(self):
+        from google.cloud.storage.bucket import Bucket
+
+        PROJECT = 'PROJECT'
+        CREDENTIALS = _make_credentials()
+        BUCKET_NAME = 'BUCKET_NAME'
+        USER_PROJECT = 'USER-PROJECT'
+
+        client = self._make_one(project=PROJECT, credentials=CREDENTIALS)
+        bucket = client.bucket(BUCKET_NAME, user_project=USER_PROJECT)
+        self.assertIsInstance(bucket, Bucket)
+        self.assertIs(bucket.client, client)
+        self.assertEqual(bucket.name, BUCKET_NAME)
+        self.assertEqual(bucket.user_project, USER_PROJECT)
 
     def test_batch(self):
         from google.cloud.storage.batch import Batch
@@ -152,6 +168,7 @@ class TestClient(unittest.TestCase):
         from google.cloud.storage.bucket import Bucket
 
         PROJECT = 'PROJECT'
+        USER_PROJECT = 'USER-PROJECT'
         CREDENTIALS = _make_credentials()
         client = self._make_one(project=PROJECT, credentials=CREDENTIALS)
 
@@ -161,16 +178,18 @@ class TestClient(unittest.TestCase):
             'storage',
             client._connection.API_VERSION,
             'b',
-            '%s?projection=noAcl' % (BUCKET_NAME,),
+            '%s?projection=noAcl&userProject=%s' %
+            (BUCKET_NAME, USER_PROJECT),
         ])
         http = client._http_internal = _Http(
             {'status': '200', 'content-type': 'application/json'},
             '{{"name": "{0}"}}'.format(BUCKET_NAME).encode('utf-8'),
         )
 
-        bucket = client.get_bucket(BUCKET_NAME)
+        bucket = client.get_bucket(BUCKET_NAME, user_project=USER_PROJECT)
         self.assertIsInstance(bucket, Bucket)
         self.assertEqual(bucket.name, BUCKET_NAME)
+        self.assertEqual(bucket.user_project, USER_PROJECT)
         self.assertEqual(http._called_with['method'], 'GET')
         self.assertEqual(http._called_with['uri'], URI)
 
@@ -200,6 +219,7 @@ class TestClient(unittest.TestCase):
         from google.cloud.storage.bucket import Bucket
 
         PROJECT = 'PROJECT'
+        USER_PROJECT = 'USER-PROJECT'
         CREDENTIALS = _make_credentials()
         client = self._make_one(project=PROJECT, credentials=CREDENTIALS)
 
@@ -209,16 +229,18 @@ class TestClient(unittest.TestCase):
             'storage',
             client._connection.API_VERSION,
             'b',
-            '%s?projection=noAcl' % (BUCKET_NAME,),
+            '%s?projection=noAcl&userProject=%s' %
+            (BUCKET_NAME, USER_PROJECT),
         ])
         http = client._http_internal = _Http(
             {'status': '200', 'content-type': 'application/json'},
             '{{"name": "{0}"}}'.format(BUCKET_NAME).encode('utf-8'),
         )
 
-        bucket = client.lookup_bucket(BUCKET_NAME)
+        bucket = client.lookup_bucket(BUCKET_NAME, user_project=USER_PROJECT)
         self.assertIsInstance(bucket, Bucket)
         self.assertEqual(bucket.name, BUCKET_NAME)
+        self.assertEqual(bucket.user_project, USER_PROJECT)
         self.assertEqual(http._called_with['method'], 'GET')
         self.assertEqual(http._called_with['uri'], URI)
 

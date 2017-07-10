@@ -121,7 +121,7 @@ class Client(ClientWithProject):
         """
         return self._batch_stack.top
 
-    def bucket(self, bucket_name):
+    def bucket(self, bucket_name, user_project=None):
         """Factory constructor for bucket object.
 
         .. note::
@@ -131,10 +131,15 @@ class Client(ClientWithProject):
         :type bucket_name: str
         :param bucket_name: The name of the bucket to be instantiated.
 
+        :type user_project: str
+        :param user_project:
+            (Optional) the project ID to be billed for API requests made via
+            the returned bucket.
+
         :rtype: :class:`google.cloud.storage.bucket.Bucket`
         :returns: The bucket object created.
         """
-        return Bucket(client=self, name=bucket_name)
+        return Bucket(client=self, name=bucket_name, user_project=user_project)
 
     def batch(self):
         """Factory constructor for batch object.
@@ -148,7 +153,7 @@ class Client(ClientWithProject):
         """
         return Batch(client=self)
 
-    def get_bucket(self, bucket_name):
+    def get_bucket(self, bucket_name, user_project=None):
         """Get a bucket by name.
 
         If the bucket isn't found, this will raise a
@@ -165,15 +170,20 @@ class Client(ClientWithProject):
         :type bucket_name: str
         :param bucket_name: The name of the bucket to get.
 
+        :type user_project: str
+        :param user_project:
+            (Optional) the project ID to be billed for API requests made via
+            the returned bucket.
+
         :rtype: :class:`google.cloud.storage.bucket.Bucket`
         :returns: The bucket matching the name provided.
         :raises: :class:`google.cloud.exceptions.NotFound`
         """
-        bucket = Bucket(self, name=bucket_name)
+        bucket = Bucket(self, name=bucket_name, user_project=user_project)
         bucket.reload(client=self)
         return bucket
 
-    def lookup_bucket(self, bucket_name):
+    def lookup_bucket(self, bucket_name, user_project=None):
         """Get a bucket by name, returning None if not found.
 
         You can use this if you would rather check for a None value
@@ -186,11 +196,16 @@ class Client(ClientWithProject):
         :type bucket_name: str
         :param bucket_name: The name of the bucket to get.
 
+        :type user_project: str
+        :param user_project:
+            (Optional) the project ID to be billed for API requests made via
+            the returned bucket.
+
         :rtype: :class:`google.cloud.storage.bucket.Bucket`
         :returns: The bucket matching the name provided or None if not found.
         """
         try:
-            return self.get_bucket(bucket_name)
+            return self.get_bucket(bucket_name, user_project=user_project)
         except NotFound:
             return None
 
